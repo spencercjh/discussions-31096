@@ -1,0 +1,56 @@
+plugins {
+    id 'java'
+    id 'io.quarkus'
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    maven {
+        def properties = getProperties()
+        def ghUsername = properties.get("githubUser") ?: System.getenv("REPOSITORY_USERNAME") ?: githubUser
+        def ghPassword = properties.get("githubToken") ?: System.getenv("REPOSITORY_TOKEN") ?: githubToken
+        name = "jira-java-openapi-client"
+        url = uri("https://maven.pkg.github.com/coscene-io/jira-openapi-java-client")
+        credentials {
+            // Github username
+            username = ghUsername
+            // Github PAT
+            password = ghPassword
+        }
+        content {
+            includeGroup "io.coscene"
+        }
+    }
+}
+
+dependencies {
+    implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
+    implementation 'io.quarkus:quarkus-resteasy-reactive-jackson'
+    implementation 'io.quarkus:quarkus-arc'
+    implementation 'io.quarkus:quarkus-resteasy-reactive'
+    testImplementation 'io.quarkus:quarkus-junit5'
+    testImplementation 'io.rest-assured:rest-assured'
+
+    // comment this everything will be ok.
+    implementation "io.coscene:jira-openapi-java-client:v20221101-99b6dc2"
+}
+group 'com.example'
+version '1.0-SNAPSHOT'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+test {
+    systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
+}
+compileJava {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-parameters'
+}
+
+compileTestJava {
+    options.encoding = 'UTF-8'
+}

@@ -1,0 +1,71 @@
+pluginManagement {
+    repositories {
+        if (System.getenv("HUAWEI") == "true") {
+            maven {
+                url "https://repo.huaweicloud.com/repository/maven/"
+            }
+        }
+        mavenLocal()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    plugins {
+        id "${quarkusPluginId}" version "${quarkusPluginVersion}"
+    }
+}
+// if download dependencies failed, please check:
+// 1. whether the local gradle configuration(e.g.: init.gradle in $HOME/.gradle or ${project.rootDir}/.gradle )
+// conflicts with the following configuration
+// 2. username and password are correctly configured
+// in gradle.properties in $HOME/.gradle, ${project.rootDir}/.gradle, gradle cli parameter `-P` or system env
+dependencyResolutionManagement {
+    def properties = getProperties()
+    def ghUsername = properties.get("githubUser") ?: System.getenv("REPOSITORY_USERNAME") ?: githubUser
+    def ghPassword = properties.get("githubToken") ?: System.getenv("REPOSITORY_TOKEN") ?: githubToken
+    repositories {
+        mavenLocal()
+
+        if (System.getenv("HUAWEI") == "true") {
+            maven {
+                url "https://repo.huaweicloud.com/repository/maven/"
+            }
+        }
+        maven {
+            name = "cosceneapis"
+            url = uri("https://maven.pkg.github.com/coscene-io/cosceneapi")
+            credentials {
+                username = ghUsername
+                password = ghPassword
+            }
+            content {
+                includeGroup "io.coscene"
+            }
+        }
+        maven {
+            name = "jira-java-openapi-client"
+            url = uri("https://maven.pkg.github.com/coscene-io/jira-openapi-java-client")
+            credentials {
+                username = ghUsername
+                password = ghPassword
+            }
+            content {
+                includeGroup "io.coscene"
+            }
+        }
+        maven {
+            name = "argo-workflows"
+            url = uri("https://maven.pkg.github.com/argoproj/argo-workflows")
+            credentials {
+                username = ghUsername
+                password = ghPassword
+            }
+            content {
+                includeGroup "io.argoproj.workflow"
+            }
+        }
+
+        mavenCentral()
+    }
+}
+
+rootProject.name = 'rest-demo'
